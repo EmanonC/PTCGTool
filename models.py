@@ -43,7 +43,6 @@ class Card(db.Model):
 
     is_standard = db.Column(db.Integer)
 
-    set_number = db.Column(db.String(20),  nullable=False)
     set_id = db.Column(db.Integer, db.ForeignKey('set.id'))
     fromset = db.relationship('Set', backref=db.backref('cards'))
 
