@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 import os
+from helper import CardUploader
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -128,26 +129,8 @@ def uploadcard():
     if request.method == 'GET':
         return render_template('add_cards.html')
     else:
-        for i in range(3):
-            Series = request.form.get('Series' + str(i))
-            SetNumber = request.form.get('SetNumber' + str(i))
-            CardNumber = request.form.get('CardNumber' + str(i))
-            NumberofCards = request.form.get('NumberofCards' + str(i))
-            StorePlace = request.form.get('StorePlace' + str(i))
-            PullFrom = request.form.get('Pull' + str(i))
-
-            if SetNumber and CardNumber and NumberofCards and StorePlace:
-                dbSet = models.Set.query.filter_by(set_ind=SetNumber, series=Series).first()
-                dbCard = models.Card.query.filter_by(set_id=dbSet.id, card_number=CardNumber).first()
-                print(dbCard.card_name)
-
-                dbCollectedCards = models.CollectedCards(
-                    pull_from=PullFrom, store_at=StorePlace,
-                    number_of_cards=int(NumberofCards), card_id=dbCard.id, owner_id=uid
-                )
-                db.session.add(dbCollectedCards)
-                db.session.commit()
-            print(Series)
+        cd=CardUploader(form=request.form,db=db,uid=uid)
+        cd.UpoladCard()
         return render_template('add_cards.html')
 
 
@@ -173,7 +156,6 @@ def scripts():
 @app.route('/scripts/spider')
 def UploadAll():
     k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    k = [8, 9, 10, 11]
     k = []
     for i in k:
         UploadSMSet(i)
