@@ -1,0 +1,119 @@
+{% extends 'after_login_base.html' %}
+
+{% block title %}Title{% endblock %}
+
+{% block main %}
+    <form action="{{ url_for('uploadcard') }}" method="post">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Set Number</th>
+                <th scope="col">Card Number</th>
+                <th scope="col">Number of Cards</th>
+                <th scope="col">Store at</th>
+                <th scope="col">Pull From</th>
+
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Set"
+                           name="SetNumber0" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Card"
+                           name="CardNumber0" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Number of Cards"
+                           name="NumberofCards0" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Store at"
+                           name="StorePlace0" >
+
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Pull from"
+                           name="Pull0">
+
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Set"
+                           name="SetNumber1" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Card"
+                           name="CardNumber1" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Number of Cards"
+                           name="NumberofCards1" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Store at"
+                           name="StorePlace1" >
+
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Pull from"
+                           name="Pull1">
+
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Set"
+                           name="SetNumber2" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Card"
+                           name="CardNumber2" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Number of Cards"
+                           name="NumberofCards2" >
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Store at"
+                           name="StorePlace2" >
+
+                </td>
+                <td>
+                    <input type="text" class="form-control"
+                           placeholder="Pull from"
+                           name="Pull2">
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-block btn-primary" value="Submit">Submit</button>
+    </form>
+
+{% endblock %}
+
+
+
