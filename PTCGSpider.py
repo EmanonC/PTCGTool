@@ -209,9 +209,9 @@ class SPSet:
     def __init__(self, SetIndex):
         SetIndex='sm'+str(SetIndex)
         self.SetIndex = SetIndex
-        self.DefaultName = {5: 'Ultra Prism', 6: 'Forbidden Light', 7: 'Celestial Storm', 8: 'Lost Thunder',
+        self.DefaultName = {1:'Sun & Moon',2:'Guardians Rising',3:'Burning Shadows',4:'Crimson Invasion',5: 'Ultra Prism', 6: 'Forbidden Light', 7: 'Celestial Storm', 8: 'Lost Thunder',
                             9: 'Team Up', 10: 'Unbroken Bonds', 11: 'Unified Minds', 12: 'Cosmic Eclipse'}
-        self.DefaultCode = {5: 'UPR', 6: 'FLI', 7: 'CES', 8: 'LOT', 9: 'TEU', 10: 'UNB', 11: 'UNM', 12: 'COE'}
+        self.DefaultCode = {1:'SUM',2:'GRI',3:'BUS',4:'CIN',5: 'UPR', 6: 'FLI', 7: 'CES', 8: 'LOT', 9: 'TEU', 10: 'UNB', 11: 'UNM', 12: 'CEC'}
 
     def __getSetMax(self):
         card = SPCard(self.SetIndex, 1)

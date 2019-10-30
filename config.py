@@ -12,6 +12,5 @@ SQLALCHEMY_DATABASE_URI="{}+{}://{}:{}@{}:{}/{}?charset=utf8".format(dia,dri,use
 SQLALCHEMY_TRACK_MODIFICATIONS=True
 
 Debug=True
-secret_key = os.urandom(24)
 
 SECRET_KEY=os.urandom(24)

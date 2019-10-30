@@ -3,11 +3,11 @@
 {% block title%}Title{%endblock%}
 
 {%block main%}
-<h3 class="page-title">Hello! {{user}}</h3>
+<h3 class="page-title">{{msg}}</h3>
 <br>
 <div class="button-list">
     <div class="btn-group-vertical">
-        <a href="{{ url_for('uploadcard') }}" class="button">
+        <a href="{{ url_for('UploadAll') }}" class="button">
         <button type="button" class="btn btn-primary btn-block">Spider</button>
         </a>
         <br>

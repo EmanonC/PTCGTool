@@ -134,6 +134,7 @@ def uploadcard():
             NumberofCards = request.form.get('NumberofCards' + str(i))
             StorePlace = request.form.get('StorePlace' + str(i))
             PullFrom=request.form.get('Pull' + str(i))
+
             if SetNumber and CardNumber and NumberofCards and StorePlace:
                 dbSet = models.Set.query.filter_by(set_ind = SetNumber).first()
                 dbCard = models.Card.query.filter_by(set_id = dbSet.id,card_number = CardNumber).first()
@@ -161,16 +162,24 @@ def logout():
 
 @app.route('/scripts')
 def scripts():
-    return render_template('scripts.html')
+    contex={
+        'msg':'Scripts'
+    }
+    return render_template('scripts.html',**contex)
 
 @app.route('/scripts/spider')
 def UploadAll():
-    k=[5,6,7,8,9,10,11]
+    k=[1,2,3,4,5,6,7,8,9,10,11]
+    k=[11]
     for i in k:
         UploadSMSet(i)
 
     re = models.Card.query.filter(models.Card.set_id == '1').all()
     print([i.card_name for i in re])
+    contex={
+        'msg':'Success'
+    }
+    return render_template('scripts.html',**contex)
 
 
 def UploadSMSet(SetIndex):
@@ -187,7 +196,8 @@ def UploadSMSet(SetIndex):
             card_number=str(card.CardNumber), card_name=card.data.get('Name'), card_type=card.data.get('Type'),
             card_subtype=card.data.get('Subtype'), card_rarity=card.data.get('Rare'), is_standard=1
         )
-        dbCard.set_id = dbSet.id
+        dbCard.fromset = dbSet
+        dbCard.set_number=dbSet.set_ind
         db.session.add(dbCard)
         db.session.commit()
 
@@ -220,6 +230,7 @@ def UploadSMSet(SetIndex):
             dbCardText.card_id = dbCard.id
             db.session.add(dbCardText)
             db.session.commit()
+
 # @app.route('/mupload')
 # def ManullyUpload():
 #     SetName='Cosmic Eclipse'
