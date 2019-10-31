@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 import os
-from helper import CardUploader
+from helper import CardUploader, staData
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -126,12 +126,23 @@ def uploadcard():
     if 'user' not in session:
         return redirect(url_for('index'))
     uid = session['uid']
+
     if request.method == 'GET':
-        return render_template('add_cards.html')
+        data = staData()
+        context = data.getContextforAdding()
+        return render_template('add_cards.html', **context)
+
     else:
-        cd=CardUploader(form=request.form,db=db,uid=uid)
+        context = {
+            'form': request.form,
+            'db': db,
+            'uid': uid
+        }
+        cd = CardUploader(**context)
         cd.UpoladCard()
-        return render_template('add_cards.html')
+        data = staData()
+        context = data.getContextforAdding()
+        return render_template('add_cards.html', **context)
 
 
 @app.route('/viewcards')
