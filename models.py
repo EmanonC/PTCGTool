@@ -7,18 +7,29 @@ class User(db.Model):
     username = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
+class StorePlace(db.Model):
+    __tablename__ = 'store_place'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(200))
+    type=db.Column(db.String(200))
+
 
 class CollectedCards(db.Model):
     __tablename__ = 'collected_cards'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     pull_from = db.Column(db.String(200))
-    store_at = db.Column(db.String(200))
+
     number_of_cards = db.Column(db.Integer, nullable=False)
 
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'))
 
+    store_at  = db.Column(db.Integer, db.ForeignKey('store_place.id'))
+    store_palce = db.relationship('StorePlace', backref=db.backref('storedcards'))
+
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     owner = db.relationship('User', backref=db.backref('cards'))
+
+
 
 
 class Set(db.Model):

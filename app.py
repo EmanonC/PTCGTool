@@ -149,6 +149,15 @@ def uploadcard():
 def preview():
     return 'Preview'
 
+@app.route('/createstack', methods=["GET", "POST"])
+def CreateStack():
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    uid = session['uid']
+    data=staData()
+    context=data.getType()
+    if request.method == 'GET':
+        return render_template('create_stacks.html',**context)
 
 @app.route('/logout', methods=["GET", "POST"])
 def logout():
@@ -167,7 +176,7 @@ def scripts():
 @app.route('/scripts/spider')
 def UploadAll():
     k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    k = []
+    # k = []
     for i in k:
         UploadSMSet(i)
 
@@ -177,6 +186,8 @@ def UploadAll():
         'msg': 'Success'
     }
     return render_template('scripts.html', **contex)
+
+
 
 
 def UploadSMSet(SetIndex):

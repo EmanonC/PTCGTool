@@ -1,0 +1,19 @@
+{% extends 'after_login_base.html' %}
+
+{% block title %}Create Stacks{% endblock %}
+
+{% block main %}
+    <form action="{{ url_for('CreateStack') }}" method="post">
+            <div class="input-group">
+                <select class="selectwidthauto" name="Type">
+                            {% for type in Types %}
+                                <option value="{{ type }}">{{ type }}</option>
+                            {% endfor %}
+                </select>
+                <input type="text" name="stack_name" class="form-control" placeholder="Stack Name">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" type="submit" value="Submit">Create</button>
+                </div>
+            </div>
+    </form>
+{% endblock %}

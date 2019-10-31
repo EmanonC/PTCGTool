@@ -9,7 +9,7 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">Set</th>
-{#                <th scope="col">Set Number/Code</th>#}
+                {#                <th scope="col">Set Number/Code</th>#}
                 <th scope="col">Card Number</th>
                 <th scope="col">Number of Cards</th>
                 <th scope="col">Store at</th>
@@ -24,23 +24,12 @@
                     <th scope="row">{{ foo + 1 }}</th>
 
                     <td>
-                        <select class="custom-select" name="SetCode{{ foo }}">
+                        <select class="custom-select selectwidthauto" name="SetCode{{ foo }}">
                             {% for set in Sets %}
                                 <option value="{{ set.SetCode }}">{{ set.SetName }}</option>
                             {% endfor %}
-                            
-{#                            <option value="SM">Sun & Moon</option>#}
-                            {#                        <option value="1">One</option>#}
-                            {#                        <option value="2">Two</option>#}
-                            {#                        <option value="3">Three</option>#}
                         </select>
                     </td>
-
-{#                    <td>#}
-{#                        <input type="text" class="form-control"#}
-{#                               placeholder="Set"#}
-{#                               name="SetNumber{{ foo }}">#}
-{#                    </td>#}
                     <td>
                         <input type="text" class="form-control"
                                placeholder="Card"

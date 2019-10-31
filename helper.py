@@ -33,21 +33,25 @@ class CardUploader:
 
 class staData:
     def __init__(self):
+        pass
+        # print(self.__SetCode)
+    def getContextforAdding(self):
         self.__SetName = ['Sun & Moon', 'Guardians Rising', 'Burning Shadows', 'Crimson Invasion',
            'Ultra Prism', 'Forbidden Light', 'Celestial Storm', 'Lost Thunder', 'Team Up',
            'Unbroken Bonds', 'Unified Minds']
         self.__SetCode = ['SUM', 'GRI', 'BUS', 'CIN', 'UPR', 'FLI', 'CES', 'LOT', 'TEU', 'UNB', 'UNM']
         self.__SetRank=[_ for _ in range(len(self.__SetName))]
-
-
-        # print(self.__SetCode)
-    def getContextforAdding(self):
         mid=zip(self.__SetRank,self.__SetCode,self.__SetName)
         mid=sorted(mid,reverse=True)
         self.__SetRank,self.__SetCode,self.__SetName=list(zip(*mid))
         context={
             'nofRow': [_ for _ in range(5)],
             'Sets':[{'SetCode':self.__SetCode[i],'SetName':self.__SetName[i]} for i in range(len(self.__SetRank))]
+        }
+        return context
+    def getType(self):
+        context={
+            'Types':['Card Box','Deck','Binder']
         }
         return context
 

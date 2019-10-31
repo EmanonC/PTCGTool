@@ -43,3 +43,13 @@
 .bd-placeholder-img{
     opacity:1;
 }
+
+.selectwidthauto
+{
+     width:auto !important;
+}
+
+.selectwidth20
+{
+     width:20px !important;
+}
