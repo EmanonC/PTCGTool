@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 import os
-from helper import CardUploader, staData
+from helper import CardUploader, staData,StackCreater,SMSet
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -158,6 +158,15 @@ def CreateStack():
     context=data.getType()
     if request.method == 'GET':
         return render_template('create_stacks.html',**context)
+    else:
+        context2 = {
+            'form': request.form,
+            'db': db,
+            'uid': uid
+        }
+        cs=StackCreater(**context2)
+        cs.CreateStack()
+        return render_template('create_stacks.html',**context)
 
 @app.route('/logout', methods=["GET", "POST"])
 def logout():
@@ -176,12 +185,10 @@ def scripts():
 @app.route('/scripts/spider')
 def UploadAll():
     k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    # k = []
+    # k=[1]
+    Tool=SMSet(db=db)
     for i in k:
-        UploadSMSet(i)
-
-    re = models.Card.query.filter(models.Card.set_id == '1').all()
-    print([i.card_name for i in re])
+        Tool.UploadSingleSet(i)
     contex = {
         'msg': 'Success'
     }
@@ -190,54 +197,7 @@ def UploadAll():
 
 
 
-def UploadSMSet(SetIndex):
-    SMSet = SPSet(SetIndex)
-    SMSet.getAllCards()
-    dbSet = models.Set(
-        set_name=SMSet.DefaultName[int(SetIndex)], set_code=SMSet.DefaultCode[int(SetIndex)],
-        set_ind=str(SetIndex), series='SM'
-    )
-    db.session.add(dbSet)
-    db.session.commit()
-    for card in SMSet.Cards:
-        dbCard = models.Card(
-            card_number=str(card.CardNumber), card_name=card.data.get('Name'), card_type=card.data.get('Type'),
-            card_subtype=card.data.get('Subtype'), card_rarity=card.data.get('Rare'), is_standard=1
-        )
-        dbCard.fromset = dbSet
-        dbCard.set_number = dbSet.set_ind
-        db.session.add(dbCard)
-        db.session.commit()
 
-        if card.data.get('Type') == 'Pokemon':
-            dbStats = models.PokemonStats(
-                pokemon_type=card.data.get('PokemonType'), weakness=card.data.get('Weakness'),
-                resistance=card.data.get('Resistance'), retreat=card.data.get('Retreat'),
-                hp=int(card.data.get('Hp'))
-            )
-            if card.data.get('Ability'):
-                dbStats.ability_name = card.data.get('AbilityName')
-                dbStats.ability_text = card.data.get('AbilityText')
-            dbStats.card_id = dbCard.id
-            db.session.add(dbStats)
-            db.session.commit()
-
-            moves = card.data.get('Move')
-            for move in moves:
-                dbMoveText = models.MoveText(
-                    energy_cost=move.get('EnergyCost'), move_name=move.get('MoveName'),
-                    move_damage=move.get('Damage'), move_text=move.get('Text')
-                )
-                dbMoveText.card_id = dbCard.id
-                db.session.add(dbMoveText)
-                db.session.commit()
-        else:
-            dbCardText = models.CardText(
-                text=card.data.get('Text')
-            )
-            dbCardText.card_id = dbCard.id
-            db.session.add(dbCardText)
-            db.session.commit()
 
 
 # @app.route('/mupload')

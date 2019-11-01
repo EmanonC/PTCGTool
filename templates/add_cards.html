@@ -41,9 +41,11 @@
                                name="NumberofCards{{ foo }}">
                     </td>
                     <td>
-                        <input type="text" class="form-control"
-                               placeholder="Store at"
-                               name="StorePlace{{ foo }}">
+                        <select class="custom-select selectwidthauto" name="StorePlace{{ foo }}">
+                            {% for Stack in Stacks %}
+                                <option value="{{ Stack.id }}">{{ Stack.name }}</option>
+                            {% endfor %}
+                        </select>
 
                     </td>
                     <td>

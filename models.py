@@ -12,6 +12,8 @@ class StorePlace(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(200))
     type=db.Column(db.String(200))
+    score=db.Column(db.Integer)
+    status=db.Column(db.Integer)
 
 
 class CollectedCards(db.Model):
