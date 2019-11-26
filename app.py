@@ -8,7 +8,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 import os
-from helper import CardUploader, staData,StackCreater,SMSet
+from helper import *
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -60,49 +60,8 @@ def signup():
     # On the server side, check whether the username and password are valid or not.
     # username and password must be strings between 2 to 100 characters
     if request.method == "POST":
-        username = request.form.get('username')
-        password = request.form.get('password')
-        confirm_password = request.form.get('confirm_password')
-        context = {
-            'username_valid': 0,
-            'password_valid': 0,
-            'pawconfirm_valid': 0,
-            'username': username
-        }
-
-        flag = False
-        if not 2 <= len(username) <= 100:
-            context['username_valid'] = 1
-            flag = True
-
-        if password != confirm_password:
-            context['password_valid'] = 1
-            flag = True
-
-        if not 2 <= len(password) <= 100:
-            context['password_valid'] = 2
-            flag = True
-
-        # users are not allowed to have same username
-        dup_user = models.User.query.filter_by(username=username).first()
-        if dup_user:
-            context['username_valid'] = 2
-            flag = True
-
-        if flag:
-            return render_template('signup.html', **context)
-
-        # Different users are allowed to have the same password
-        # After using salt value for storing passwords, they will look completely different on the server(database)
-        # even though they are the same
-        password = generate_password_hash(password + username)
-        candidate_user = models.User(username=username, password=password)
-        db.session.add(candidate_user)
-        db.session.commit()
-        # two directories are created to store the images later uploaded by the user
-        # log in
-        session['user'] = username
-        session['uid'] = candidate_user.id
+        SignUp=SignUpHelper(form=request.form,db=db)
+        session['user'],session['uid']=SignUp.SignUp()
         return redirect(url_for('user'))
     context = {
         'username_valid': -1,
@@ -147,7 +106,13 @@ def uploadcard():
 
 @app.route('/viewcards')
 def preview():
-    return 'Preview'
+    PageNum=int(request.args.get('page'))
+    if 'user' not in session:
+        return redirect(url_for('index'))
+    uid = session['uid']
+    searchTool=SearchTool(db=db)
+    context=searchTool.get_user_cards(uid,PageNumber=PageNum)
+    return render_template('cards_view.html', **context)
 
 @app.route('/createstack', methods=["GET", "POST"])
 def CreateStack():
@@ -184,8 +149,7 @@ def scripts():
 
 @app.route('/scripts/spider')
 def UploadAll():
-    k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    # k=[1]
+    k = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,12]
     Tool=SMSet(db=db)
     for i in k:
         Tool.UploadSingleSet(i)
@@ -200,30 +164,7 @@ def UploadAll():
 
 
 
-# @app.route('/mupload')
-# def ManullyUpload():
-#     SetName='Cosmic Eclipse'
-#     SetCode='COE'
-#     SetMax=236
-#     SerInd=12
-#     SetSeries = 'SM'
-#     dbSet = models.Set(
-#         set_name=SetName, set_code=SetCode,
-#         set_ind=str(SerInd), series=SetSeries
-#     )
-#     db.session.add(dbSet)
-#     db.session.commit()
-#     for i in range(SetMax):
-#         dbCard = models.Card(
-#             card_number=str(i+1),  is_standard=1
-#         )
-#         dbCard.set_id = dbSet.id
-#         db.session.add(dbCard)
-#         db.session.commit()
-#     return ('Success')
-
-
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
     # re = models.Card.query.filter(models.Card.set_id == '1').all()[0]
     # print(re.card_name)

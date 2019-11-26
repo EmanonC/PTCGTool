@@ -1,8 +1,10 @@
 import models
 from PTCGSpider import SPSet, SPCard
-from flask import request
+from flask import request, render_template, url_for
 import pickle
 import sys
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 class Uploader:
     def __init__(self, form, db, uid):
@@ -21,7 +23,7 @@ class CardUploader(Uploader):
             # SetNumber = self.form.get('SetNumber' + str(i))
             CardNumber = self.form.get('CardNumber' + str(i))
             NumberofCards = self.form.get('NumberofCards' + str(i))
-            StorePlace =int( self.form.get('StorePlace' + str(i)))
+            StorePlace = int(self.form.get('StorePlace' + str(i)))
             PullFrom = self.form.get('Pull' + str(i))
 
             if SetCode and CardNumber and NumberofCards and StorePlace:
@@ -63,8 +65,8 @@ class staData:
 
         self.__SetName = ['Sun & Moon', 'Guardians Rising', 'Burning Shadows', 'Crimson Invasion',
                           'Ultra Prism', 'Forbidden Light', 'Celestial Storm', 'Lost Thunder', 'Team Up',
-                          'Unbroken Bonds', 'Unified Minds']
-        self.__SetCode = ['SUM', 'GRI', 'BUS', 'CIN', 'UPR', 'FLI', 'CES', 'LOT', 'TEU', 'UNB', 'UNM']
+                          'Unbroken Bonds', 'Unified Minds', 'Cosmic Eclipse']
+        self.__SetCode = ['SUM', 'GRI', 'BUS', 'CIN', 'UPR', 'FLI', 'CES', 'LOT', 'TEU', 'UNB', 'UNM', 'CEC']
         self.__SetRank = [_ for _ in range(len(self.__SetName))]
         mid = zip(self.__SetRank, self.__SetCode, self.__SetName)
         mid = sorted(mid, reverse=True)
@@ -81,15 +83,16 @@ class staData:
         }
         return context
 
-class tool:
-    def __init__(self,db):
-        self.db=db
+
+class DBtool:
+    def __init__(self, db):
+        self.db = db
 
 
-class SMSet(tool):
-    def UploadSingleSet(self,SetIndex):
+class SMSet(DBtool):
+    def UploadSingleSet(self, SetIndex):
         self.SetIndex = SetIndex
-        self.getSMSetbySpider()
+        self.getSMSetbydat()
         self.__UploadSMSet()
 
     def getSMSetbySpider(self):
@@ -97,22 +100,22 @@ class SMSet(tool):
         sys.setrecursionlimit(15000)
         self.SMSet = SPSet(self.SetIndex)
         self.SMSet.getAllCards()
-        path='static/PTCGdata/'
-        f = open(path+str(self.SetIndex)+'.dat', 'wb')
+        path = 'static/PTCGdata/'
+        f = open(path + str(self.SetIndex) + '.dat', 'wb')
         pickle.dump(self.SMSet, f)
         f.close()
 
     def getSMSetbydat(self):
         path = 'static/PTCGdata/'
         f = open(path + str(self.SetIndex) + '.dat', 'rb')
-        self.SMSet=pickle.load(f)
+        self.SMSet = pickle.load(f)
         f.close()
         print('Finish Pickle load {}'.format(self.SetIndex))
 
     def __UploadSMSet(self):
         SMSet = self.SMSet
-        SetIndex=self.SetIndex
-        db=self.db
+        SetIndex = self.SetIndex
+        db = self.db
         dbSet = models.Set(
             set_name=SMSet.DefaultName[int(SetIndex)], set_code=SMSet.DefaultCode[int(SetIndex)],
             set_ind=str(SetIndex), series='SM'
@@ -158,13 +161,127 @@ class SMSet(tool):
                 dbCardText.card_id = dbCard.id
                 db.session.add(dbCardText)
                 db.session.commit()
-# data=[1,2,3,4]
-# path = 'static/PTCGdata/'
-# f = open(path + '2' + '.dat', 'wb')
-# pickle.dump(data, f)
-# f.close()
-#
-# f = open(path + '1' + '.dat', 'rb')
-# d = pickle.load(f)
-# f.close()
-# print(d)
+
+
+class SearchTool(DBtool):
+    def __init__(self, db):
+        super().__init__(db)
+        self.CardPerPage = 10
+
+    def __search_by_user(self, uid):
+        user = models.User.query.filter_by(id=uid).first()
+        UserCollectedCards = []
+        for card in user.cards:
+            card_info = models.Card.query.filter_by(id=card.card_id).first()
+            set_info = models.Set.query.filter_by(id=card_info.set_id).first()
+            store_info = models.StorePlace.query.filter_by(id=card.store_at).first()
+            ctt = {
+                'card_name': card_info.card_name,
+                'set_name': set_info.set_name,
+                'number': card.number_of_cards,
+                'store_place': store_info.name,
+                'store_place_type': store_info.type,
+            }
+            UserCollectedCards.append(ctt)
+        return UserCollectedCards
+
+    def __ButtonMaker(self, PageNumber, NofPages, ViewFunctionName):
+        Buttons = []
+        st = max(0, PageNumber - 4)
+        ed = min(PageNumber+3, NofPages)
+        PageLinks = []
+        PageClass = []
+        PageNumbers = [(_ + 1) for _ in range(st, ed)]
+        # while PageNumbers[-1] < NofPages:
+        #     PageNumbers.append(PageNumbers[-1] + 1)
+        # while len(PageNumbers) < 9 and PageNumbers[0] > 0:
+        #     PageNumbers = [PageNumbers[0] - 1] + PageNumbers
+        for PageNumberi in PageNumbers:
+            PageLinks.append(url_for(ViewFunctionName, page=PageNumberi))
+            if PageNumberi != PageNumber:
+                PageClass.append('btn-outline-primary')
+            else:
+                PageClass.append('btn-primary')
+
+        for i in range(len(PageClass)):
+            ctt = {
+                'text': PageNumbers[i],
+                'href': PageLinks[i],
+                'class': PageClass[i],
+            }
+            Buttons.append(ctt)
+        return Buttons
+
+    def get_user_cards(self, uid, PageNumber):
+        cards = self.__search_by_user(uid)
+        N = len(cards)
+        NofPages = N // self.CardPerPage
+        if N % self.CardPerPage > 0:
+            NofPages += 1
+        Buttons = self.__ButtonMaker(PageNumber, NofPages, 'preview')
+        context = {
+            'Buttons': Buttons,
+        }
+        if PageNumber * self.CardPerPage > N:
+            context.update({
+                'Cards': cards[(NofPages - 1) * self.CardPerPage:N]
+            })
+        else:
+            context.update({
+                'Cards': cards[(PageNumber - 1) * self.CardPerPage:PageNumber * self.CardPerPage]
+            })
+        return context
+
+
+class FormandDbtool:
+    def __init__(self, form, db):
+        self.form = form
+        self.db = db
+
+
+class SignUpHelper(FormandDbtool):
+    def SignUp(self):
+        form = self.form
+        db = self.db
+        username = form.get('username')
+        password = form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        context = {
+            'username_valid': 0,
+            'password_valid': 0,
+            'pawconfirm_valid': 0,
+            'username': username
+        }
+
+        flag = False
+        if not 2 <= len(username) <= 100:
+            context['username_valid'] = 1
+            flag = True
+
+        if password != confirm_password:
+            context['password_valid'] = 1
+            flag = True
+
+        if not 2 <= len(password) <= 100:
+            context['password_valid'] = 2
+            flag = True
+
+        # users are not allowed to have same username
+        dup_user = models.User.query.filter_by(username=username).first()
+        if dup_user:
+            context['username_valid'] = 2
+            flag = True
+
+        if flag:
+            return render_template('signup.html', **context)
+
+        # Different users are allowed to have the same password
+        # After using salt value for storing passwords, they will look completely different on the server(database)
+        # even though they are the same
+        password = generate_password_hash(password + username)
+        candidate_user = models.User(username=username, password=password)
+        db.session.add(candidate_user)
+        db.session.commit()
+        # two directories are created to store the images later uploaded by the user
+        # log in
+        return (username, candidate_user.id)

@@ -24,6 +24,7 @@ class CollectedCards(db.Model):
     number_of_cards = db.Column(db.Integer, nullable=False)
 
     card_id = db.Column(db.Integer, db.ForeignKey('card.id'))
+    stored_card= db.relationship('Card', backref=db.backref('owned_cards'))
 
     store_at  = db.Column(db.Integer, db.ForeignKey('store_place.id'))
     store_palce = db.relationship('StorePlace', backref=db.backref('storedcards'))

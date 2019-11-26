@@ -11,7 +11,7 @@
                 <button type="button" class="btn btn-outline-primary btn-block">Upload Card</button>
             </a>
             <br>
-            <a href="{{ url_for('preview') }}" class="button">
+            <a href="{{ url_for('preview',page=1) }}" class="button">
                 <button type="button" class="btn btn-outline-primary btn-block">View Your Cards</button>
             </a>
         </div>
@@ -20,8 +20,8 @@
                 <button type="button" class="btn btn-outline-primary btn-block">Create Stack</button>
             </a>
             <br>
-            <a href="{{ url_for('preview') }}" class="button">
-                <button type="button" class="btn btn-outline-primary btn-block">View Your Cards</button>
+            <a href="{{ url_for('user') }}" class="button">
+                <button type="button" class="btn btn-outline-primary btn-block">In dev</button>
             </a>
         </div>
     </div>
